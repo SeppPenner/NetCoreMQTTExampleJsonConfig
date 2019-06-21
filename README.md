@@ -154,7 +154,8 @@ namespace NetCoreMQTTExampleJsonConfig
 ```
 
 ## Attention:
-The project currently only matches topics exactly. I want to provide a regex later, check: https://github.com/eclipse/mosquitto/issues/1317.
+* The project currently only matches topics exactly. I want to provide a regex later, check: https://github.com/eclipse/mosquitto/issues/1317.
+* The project only works properly when the ClientId is properly set in the clients (and in the config.json, of course).
 
 ## Create an openssl certificate:
 ```bash
