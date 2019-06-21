@@ -20,8 +20,14 @@
     /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The <see cref="AesCryptor"></see>.
+        /// </summary>
         private static readonly IAesCryptor aesCryptor = new AesCryptor();
 
+        /// <summary>
+        /// The password.
+        /// </summary>
         private const string Password = "somePassword";
 
         /// <summary>
