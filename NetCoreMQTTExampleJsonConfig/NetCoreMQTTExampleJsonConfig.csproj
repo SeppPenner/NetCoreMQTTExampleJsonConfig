@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RootNamespace>NetCoreMQTTExample</RootNamespace>
+    <RootNamespace>NetCoreMQTTExampleJsonConfig</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

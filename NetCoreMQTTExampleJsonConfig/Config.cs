@@ -1,4 +1,4 @@
-﻿namespace NetCoreMQTTExample
+﻿namespace NetCoreMQTTExampleJsonConfig
 {
     using System.Collections.Generic;
 

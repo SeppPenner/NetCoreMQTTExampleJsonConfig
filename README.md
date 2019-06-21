@@ -1,18 +1,18 @@
-NetCoreMQTTExample
+NetCoreMQTTExampleJsonConfig
 ====================================
 
-NetCoreMQTTExample to check user credentials and topic restrictions from [MQTTnet](https://github.com/chkr1011/MQTTnet) from a json config file. The project was written and tested in .NetCore 2.2.
+NetCoreMQTTExampleJsonConfig to check user credentials and topic restrictions from [MQTTnet](https://github.com/chkr1011/MQTTnet) from a json config file. The project was written and tested in .NetCore 2.2.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/hp121hwwk8ug4scx?svg=true)](https://ci.appveyor.com/project/SeppPenner/netcoremqttexample)
-[![GitHub issues](https://img.shields.io/github/issues/SeppPenner/NetCoreMQTTExample.svg)](https://github.com/SeppPenner/NetCoreMQTTExample/issues)
-[![GitHub forks](https://img.shields.io/github/forks/SeppPenner/NetCoreMQTTExample.svg)](https://github.com/SeppPenner/NetCoreMQTTExample/network)
-[![GitHub stars](https://img.shields.io/github/stars/SeppPenner/NetCoreMQTTExample.svg)](https://github.com/SeppPenner/NetCoreMQTTExample/stargazers)
-[![GitHub license](https://img.shields.io/badge/license-AGPL-blue.svg)](https://raw.githubusercontent.com/SeppPenner/NetCoreMQTTExample/master/License.txt)
-[![Known Vulnerabilities](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExample/badge.svg)](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExample)
+[![Build status](https://ci.appveyor.com/api/projects/status/fiew5qifetygw02w?svg=true)](https://ci.appveyor.com/project/SeppPenner/netcoremqttexamplejsonconfig)
+[![GitHub issues](https://img.shields.io/github/issues/SeppPenner/NetCoreMQTTExampleJsonConfig.svg)](https://github.com/SeppPenner/NetCoreMQTTExampleJsonConfig/issues)
+[![GitHub forks](https://img.shields.io/github/forks/SeppPenner/NetCoreMQTTExampleJsonConfig.svg)](https://github.com/SeppPenner/NetCoreMQTTExampleJsonConfig/network)
+[![GitHub stars](https://img.shields.io/github/stars/SeppPenner/NetCoreMQTTExampleJsonConfig.svg)](https://github.com/SeppPenner/NetCoreMQTTExampleJsonConfig/stargazers)
+[![GitHub license](https://img.shields.io/badge/license-AGPL-blue.svg)](https://raw.githubusercontent.com/SeppPenner/NetCoreMQTTExampleJsonConfig/master/License.txt)
+[![Known Vulnerabilities](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig/badge.svg)](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig)
 
 ## Main code:
 ```csharp
-namespace NetCoreMQTTExample
+namespace NetCoreMQTTExampleJsonConfig
 {
     using System;
 
