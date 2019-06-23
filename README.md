@@ -34,8 +34,14 @@ namespace NetCoreMQTTExampleJsonConfig
     /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The <see cref="AesCryptor"></see>.
+        /// </summary>
         private static readonly IAesCryptor aesCryptor = new AesCryptor();
 
+        /// <summary>
+        /// The password.
+        /// </summary>
         private const string Password = "somePassword";
 
         /// <summary>
@@ -108,6 +114,16 @@ namespace NetCoreMQTTExampleJsonConfig
                                 return;
                             }
 
+                            foreach (var allowedTopic in currentUser.AllowedTopics)
+                            {
+                                var isTopicValid = TopicChecker.Test(allowedTopic, topic);
+                                if (isTopicValid)
+                                {
+                                    c.AcceptSubscription = true;
+                                    return;
+                                }
+                            }
+
                             c.AcceptSubscription = false;
                             c.CloseConnection = true;
                         });
@@ -154,7 +170,7 @@ namespace NetCoreMQTTExampleJsonConfig
 ```
 
 ## Attention:
-* The project currently only matches topics exactly. I want to provide a regex later, check: https://github.com/eclipse/mosquitto/issues/1317.
+* The project only matches topics with the chars `a to z`, `A-Z`, `0-9`, ` `, `_`, `.` and `-`.
 * The project only works properly when the ClientId is properly set in the clients (and in the config.json, of course).
 
 ## Create an openssl certificate:
