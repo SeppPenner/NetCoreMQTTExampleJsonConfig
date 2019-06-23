@@ -7,8 +7,8 @@
          "Password":"Test",
          "AllowedTopics": [
            "a",
-           "b",
-           "c"
+           "b/+",
+           "c/#"
          ]
       }
    ]

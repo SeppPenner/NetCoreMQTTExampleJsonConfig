@@ -100,6 +100,16 @@
                                 return;
                             }
 
+                            foreach (var allowedTopic in currentUser.AllowedTopics)
+                            {
+                                var isTopicValid = TopicChecker.Test(allowedTopic, topic);
+                                if (isTopicValid)
+                                {
+                                    c.AcceptSubscription = true;
+                                    return;
+                                }
+                            }
+
                             c.AcceptSubscription = false;
                             c.CloseConnection = true;
                         });
