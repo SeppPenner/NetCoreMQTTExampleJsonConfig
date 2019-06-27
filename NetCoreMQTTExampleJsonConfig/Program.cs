@@ -102,7 +102,7 @@
 
                             foreach (var allowedTopic in currentUser.AllowedTopics)
                             {
-                                var isTopicValid = TopicChecker.Test(allowedTopic, topic);
+                                var isTopicValid = TopicChecker.TopicMatch(allowedTopic, topic);
                                 if (isTopicValid)
                                 {
                                     c.AcceptSubscription = true;

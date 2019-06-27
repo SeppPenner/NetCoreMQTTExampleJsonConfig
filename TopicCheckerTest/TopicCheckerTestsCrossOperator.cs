@@ -15,7 +15,7 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValueCrossMatch()
         {
-            var result = TopicChecker.Test("a/#", "a/b");
+            var result = TopicChecker.TopicMatch("a/#", "a/b");
             Assert.IsTrue(result);
         }
 
@@ -25,7 +25,7 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValueCrossMatch2()
         {
-            var result = TopicChecker.Test("a/#", "a/b/c");
+            var result = TopicChecker.TopicMatch("a/#", "a/b/c");
             Assert.IsTrue(result);
         }
 
@@ -35,7 +35,7 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValueCrossMatchWithCross()
         {
-            var result = TopicChecker.Test("a/#", "a/#");
+            var result = TopicChecker.TopicMatch("a/#", "a/#");
             Assert.IsTrue(result);
         }
 
@@ -45,18 +45,8 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValueCrossMatchWithPlus()
         {
-            var result = TopicChecker.Test("a/#", "a/+");
+            var result = TopicChecker.TopicMatch("a/#", "a/+");
             Assert.IsTrue(result);
-        }
-
-        /// <summary>
-        /// Checks the tester with an invalid topic with an invalid char for the # operator.
-        /// </summary>
-        [TestMethod]
-        public void CheckSingleValueCrossDontMatchInvalidChar()
-        {
-            var result = TopicChecker.Test("a/#", "a/?");
-            Assert.IsFalse(result);
         }
     }
 }

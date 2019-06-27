@@ -15,7 +15,7 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValuePlusMatch()
         {
-            var result = TopicChecker.Test("a/+", "a/b");
+            var result = TopicChecker.TopicMatch("a/+", "a/b");
             Assert.IsTrue(result);
         }
 
@@ -25,18 +25,18 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValuePlusDontMatch()
         {
-            var result = TopicChecker.Test("a/+", "a/b/c");
+            var result = TopicChecker.TopicMatch("a/+", "a/b/c");
             Assert.IsFalse(result);
         }
 
         /// <summary>
-        /// Checks the tester with an invalid topic with a + for the + operator.
+        /// Checks the tester with a valid topic with a + for the + operator.
         /// </summary>
         [TestMethod]
-        public void CheckSingleValuePlusDontMatchWithPlus()
+        public void CheckSingleValuePlusMatchWithPlus()
         {
-            var result = TopicChecker.Test("a/+", "a/+");
-            Assert.IsFalse(result);
+            var result = TopicChecker.TopicMatch("a/+", "a/+");
+            Assert.IsTrue(result);
         }
 
         /// <summary>
@@ -45,17 +45,7 @@ namespace TopicCheckerTest
         [TestMethod]
         public void CheckSingleValuePlusDontMatchWithCross()
         {
-            var result = TopicChecker.Test("a/+", "a/#");
-            Assert.IsFalse(result);
-        }
-
-        /// <summary>
-        /// Checks the tester with an invalid topic with an invalid char for the + operator.
-        /// </summary>
-        [TestMethod]
-        public void CheckSingleValuePlusDontMatchInvalidChar()
-        {
-            var result = TopicChecker.Test("a/+", "a/?");
+            var result = TopicChecker.TopicMatch("a/+", "a/#");
             Assert.IsFalse(result);
         }
     }
