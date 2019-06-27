@@ -76,23 +76,23 @@ namespace NetCoreMQTTExampleJsonConfig
 
                             if (currentUser == null)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
                             if (c.Username != currentUser.UserName)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
                             if (c.Password != currentUser.Password)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
-                            c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                            c.ReasonCode = MqttConnectReasonCode.Success;
                         })
                 .WithSubscriptionInterceptor(
                     c =>
@@ -102,22 +102,37 @@ namespace NetCoreMQTTExampleJsonConfig
                             if (currentUser == null)
                             {
                                 c.AcceptSubscription = false;
-                                c.CloseConnection = true;
                                 return;
                             }
 
                             var topic = c.TopicFilter.Topic;
 
-                            if (currentUser.AllowedTopics.Contains(topic))
+                            if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
+                            {
+                                c.AcceptSubscription = false;
+                                return;
+                            }
+
+                            if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
                             {
                                 c.AcceptSubscription = true;
                                 return;
                             }
 
-                            foreach (var allowedTopic in currentUser.AllowedTopics)
+                            foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
                             {
-                                var isTopicValid = TopicChecker.Test(allowedTopic, topic);
-                                if (isTopicValid)
+                                var doesTopicMatch = TopicChecker.TopicMatch(forbiddenTopic, topic);
+                                if (doesTopicMatch)
+                                {
+                                    c.AcceptSubscription = false;
+                                    return;
+                                }
+                            }
+
+                            foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
+                            {
+                                var doesTopicMatch = TopicChecker.TopicMatch(allowedTopic, topic);
+                                if (doesTopicMatch)
                                 {
                                     c.AcceptSubscription = true;
                                     return;
@@ -125,7 +140,6 @@ namespace NetCoreMQTTExampleJsonConfig
                             }
 
                             c.AcceptSubscription = false;
-                            c.CloseConnection = true;
                         });
 
             var mqttServer = new MqttFactory().CreateMqttServer();
@@ -170,7 +184,6 @@ namespace NetCoreMQTTExampleJsonConfig
 ```
 
 ## Attention:
-* The project only matches topics with the chars `a to z`, `A-Z`, `0-9`, ` `, `_`, `.` and `-`.
 * The project only works properly when the ClientId is properly set in the clients (and in the config.json, of course).
 
 ## Create an openssl certificate:
@@ -184,4 +197,4 @@ An example certificate is in the folder. Password for all is `test`.
 Change history
 --------------
 
-* **Version 1.0.0.0 (2019-06-21)** : 1.0 release.
+* **Version 1.0.0.0 (2019-06-27)** : 1.0 release.
