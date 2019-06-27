@@ -136,7 +136,7 @@ namespace NetCoreMQTTExampleJsonConfig
                         }
 
                         // Valid input, but no match
-                        return true;
+                        return false;
                     }
                 }
                 else

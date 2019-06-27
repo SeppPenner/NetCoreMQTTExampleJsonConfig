@@ -62,23 +62,23 @@
 
                             if (currentUser == null)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
                             if (c.Username != currentUser.UserName)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
                             if (c.Password != currentUser.Password)
                             {
-                                c.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
-                            c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                            c.ReasonCode = MqttConnectReasonCode.Success;
                         })
                 .WithSubscriptionInterceptor(
                     c =>
@@ -88,22 +88,37 @@
                             if (currentUser == null)
                             {
                                 c.AcceptSubscription = false;
-                                c.CloseConnection = true;
                                 return;
                             }
 
                             var topic = c.TopicFilter.Topic;
 
-                            if (currentUser.AllowedTopics.Contains(topic))
+                            if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
+                            {
+                                c.AcceptSubscription = false;
+                                return;
+                            }
+
+                            if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
                             {
                                 c.AcceptSubscription = true;
                                 return;
                             }
 
-                            foreach (var allowedTopic in currentUser.AllowedTopics)
+                            foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
                             {
-                                var isTopicValid = TopicChecker.TopicMatch(allowedTopic, topic);
-                                if (isTopicValid)
+                                var doesTopicMatch = TopicChecker.TopicMatch(forbiddenTopic, topic);
+                                if (doesTopicMatch)
+                                {
+                                    c.AcceptSubscription = false;
+                                    return;
+                                }
+                            }
+
+                            foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
+                            {
+                                var doesTopicMatch = TopicChecker.TopicMatch(allowedTopic, topic);
+                                if (doesTopicMatch)
                                 {
                                     c.AcceptSubscription = true;
                                     return;
@@ -111,7 +126,6 @@
                             }
 
                             c.AcceptSubscription = false;
-                            c.CloseConnection = true;
                         });
 
             var mqttServer = new MqttFactory().CreateMqttServer();

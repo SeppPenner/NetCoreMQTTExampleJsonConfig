@@ -1,7 +1,5 @@
 ﻿namespace NetCoreMQTTExampleJsonConfig
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// The <see cref="User"/> read from the config.json file.
     /// </summary>
@@ -23,8 +21,13 @@
         public string Password { get; set; }
 
         /// <summary>
-        /// Gets or sets the allowed topics.
+        /// Gets or sets the subscription topic lists.
         /// </summary>
-        public List<string> AllowedTopics { get; set; } = new List<string>();
+        public TopicTuple SubscriptionTopicLists { get; set; } = new TopicTuple();
+
+        /// <summary>
+        /// Gets or sets the publish topic lists.
+        /// </summary>
+        public TopicTuple PublishTopicLists { get; set; } = new TopicTuple();
     }
 }
