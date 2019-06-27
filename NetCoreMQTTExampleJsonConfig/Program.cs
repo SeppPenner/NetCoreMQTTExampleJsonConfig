@@ -48,14 +48,10 @@
 
             var config = ReadConfiguration(currentPath);
 
-            var optionsBuilder = new MqttServerOptionsBuilder()
-                .WithDefaultEndpoint()
-                .WithDefaultEndpointPort(1883)
-                .WithEncryptedEndpoint()
-                .WithEncryptedEndpointPort(config.Port)
+            var optionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint().WithDefaultEndpointPort(1883)
+                .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
                 .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
-                .WithEncryptionSslProtocol(SslProtocols.Tls12)
-                .WithConnectionValidator(
+                .WithEncryptionSslProtocol(SslProtocols.Tls12).WithConnectionValidator(
                     c =>
                         {
                             var currentUser = config.Users.FirstOrDefault(u => u.UserName == c.Username);
@@ -79,8 +75,7 @@
                             }
 
                             c.ReasonCode = MqttConnectReasonCode.Success;
-                        })
-                .WithSubscriptionInterceptor(
+                        }).WithSubscriptionInterceptor(
                     c =>
                         {
                             var currentUser = config.Users.FirstOrDefault(u => u.ClientId == c.ClientId);
@@ -126,6 +121,52 @@
                             }
 
                             c.AcceptSubscription = false;
+                        }).WithApplicationMessageInterceptor(
+                    c =>
+                        {
+                            var currentUser = config.Users.FirstOrDefault(u => u.ClientId == c.ClientId);
+
+                            if (currentUser == null)
+                            {
+                                c.AcceptPublish = false;
+                                return;
+                            }
+
+                            var topic = c.ApplicationMessage.Topic;
+
+                            if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
+                            {
+                                c.AcceptPublish = false;
+                                return;
+                            }
+
+                            if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
+                            {
+                                c.AcceptPublish = true;
+                                return;
+                            }
+
+                            foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
+                            {
+                                var doesTopicMatch = TopicChecker.TopicMatch(forbiddenTopic, topic);
+                                if (doesTopicMatch)
+                                {
+                                    c.AcceptPublish = false;
+                                    return;
+                                }
+                            }
+
+                            foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
+                            {
+                                var doesTopicMatch = TopicChecker.TopicMatch(allowedTopic, topic);
+                                if (doesTopicMatch)
+                                {
+                                    c.AcceptPublish = true;
+                                    return;
+                                }
+                            }
+
+                            c.AcceptPublish = false;
                         });
 
             var mqttServer = new MqttFactory().CreateMqttServer();
