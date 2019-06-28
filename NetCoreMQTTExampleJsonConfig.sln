@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreMQTTExampleJsonConfig", "NetCoreMQTTExampleJsonConfig\NetCoreMQTTExampleJsonConfig.csproj", "{FBBE4C77-5DB8-4B9A-8098-620DC967FFE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopicCheckerTest", "TopicCheckerTest\TopicCheckerTest.csproj", "{F30566CF-2D27-47EA-8185-66F33AA2F4DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopicCheckerTest", "TopicCheckerTest\TopicCheckerTest.csproj", "{F30566CF-2D27-47EA-8185-66F33AA2F4DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
