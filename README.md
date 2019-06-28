@@ -224,8 +224,51 @@ namespace NetCoreMQTTExampleJsonConfig
 }
 ```
 
+## JSON configuration (Adjust this to your needs):
+```json
+{
+  "Port": 8883,
+  "Users": [
+    {
+      "UserName": "Hans",
+      "ClientId": "Hans",
+      "Password": "Test",
+      "SubscriptionTopicLists": {
+        "BlacklistTopics": [
+          "a",
+          "b/+",
+          "c/#"
+        ],
+        "WhitelistTopics": [
+          "d",
+          "e/+",
+          "f/#"
+        ]
+      },
+      "PublishTopicLists": {
+        "BlacklistTopics": [
+          "a",
+          "b/+",
+          "c/#"
+        ],
+        "WhitelistTopics": [
+          "d",
+          "e/+",
+          "f/#"
+        ]
+      }
+    }
+  ]
+}
+```
+
 ## Attention:
 * The project only works properly when the ClientId is properly set in the clients (and in the config.json, of course).
+
+## Further information:
+The function `TopicMatch` in the [TopicChecker](https://github.com/SeppPenner/NetCoreMQTTExampleJsonConfig/blob/master/NetCoreMQTTExampleJsonConfig/TopicChecker.cs)
+class is the translation of https://github.com/eclipse/mosquitto/blob/master/lib/util_topic.c#L138 from the Eclipse Mosquitto project to C#.
+This function is dual licensed under the Eclipse Public License 1.0 and the Eclipse Distribution License 1.0. Check the epl-v10 and edl-v10 files for further license information.
 
 ## Create an openssl certificate:
 ```bash
@@ -238,4 +281,4 @@ An example certificate is in the folder. Password for all is `test`.
 Change history
 --------------
 
-* **Version 1.0.0.0 (2019-06-27)** : 1.0 release.
+* **Version 1.0.0.0 (2019-06-28)** : 1.0 release.

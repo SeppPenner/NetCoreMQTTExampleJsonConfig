@@ -33,7 +33,9 @@ namespace NetCoreMQTTExampleJsonConfig
         }
 
         /// <summary>
-        /// Does a regex check on the topics.
+        /// Does a match check on the topics.
+        /// This function is the translation of https://github.com/eclipse/mosquitto/blob/master/lib/util_topic.c#L138 from the Eclipse Mosquitto project to C#.
+        /// This function is dual licensed under the Eclipse Public License 1.0 and the Eclipse Distribution License 1.0. Check the epl-v10 and edl-v10 files
         /// </summary>
         /// <param name="allowedTopic">The allowed topic.</param>
         /// <param name="topic">The topic.</param>
