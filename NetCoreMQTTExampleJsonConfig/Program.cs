@@ -55,7 +55,7 @@ namespace NetCoreMQTTExampleJsonConfig
             var config = ReadConfiguration(currentPath);
 
             var optionsBuilder = new MqttServerOptionsBuilder()
-			    .WithDefaultEndpoint().WithDefaultEndpointPort(1883) // For testing purposes only
+			    //.WithDefaultEndpoint().WithDefaultEndpointPort(1883) // For testing purposes only
                 .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
                 .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
                 .WithEncryptionSslProtocol(SslProtocols.Tls12).WithConnectionValidator(
