@@ -11,6 +11,11 @@ NetCoreMQTTExampleJsonConfig is a project to check user credentials and topic re
 [![Known Vulnerabilities](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig/badge.svg)](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig)
 
 ## JSON configuration (Adjust this to your needs):
+
+Users can be defined in two different ways (The ways can be combined making sure that the client ids and client id prefixes need to be distinct for all of them, of course):
+
+### Exact definition (Matching exactly one client id):
+
 ```json
 {
   "Port": 8883,
@@ -48,8 +53,41 @@ NetCoreMQTTExampleJsonConfig is a project to check user credentials and topic re
 }
 ```
 
+### Various definition (Matching multiple client ids for one username and password combination):
+
+```json
+{
+  "UserName": "Hans2",
+  "Password": "Test",
+  "ClientIdPrefix": "Test_",
+  "SubscriptionTopicLists": {
+	"BlacklistTopics": [
+	  "g",
+	  "h/+",
+	  "i/#"
+	],
+	"WhitelistTopics": [
+	  "j",
+	  "k/+",
+	  "l/#"
+	]
+  },
+  "PublishTopicLists": {
+	"BlacklistTopics": [
+	  "g",
+	  "h/+",
+	  "i/#"
+	],
+	"WhitelistTopics": [
+	  "j",
+	  "k/+",
+	  "l/#"
+	]
+  }
+}
+```
+
 ## Attention:
-* The project only works properly when the ClientId is properly set in the clients (and in the config.json, of course).
 * Only the following [UTF-8](https://www.utf8-chartable.de/unicode-utf8-table.pl) chars are supported for topics:
 
 |Unicode code point|character|UTF-8(hex.)|Name|
@@ -254,4 +292,4 @@ An example certificate is in the folder. Password for all is `test`.
 Change history
 --------------
 
-* **Version 1.0.0.0 (2019-06-28)** : 1.0 release.
+* **Version 1.0.0.0 (2019-07-14)** : 1.0 release.
