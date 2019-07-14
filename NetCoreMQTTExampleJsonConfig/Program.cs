@@ -1,6 +1,7 @@
-﻿namespace NetCoreMQTTExampleJsonConfig
+namespace NetCoreMQTTExampleJsonConfig
 {
     using System;
+    using System.Collections.Generic;
 
     using MQTTnet;
     using MQTTnet.Protocol;
@@ -29,6 +30,11 @@
         /// The password.
         /// </summary>
         private const string Password = "somePassword";
+
+        /// <summary>
+        /// The client identifier prefixes that are currently used.
+        /// </summary>
+        private static List<string> clientIdPrefixesUsed = new List<string>();
 
         /// <summary>
         ///     The main method that starts the service.
@@ -75,16 +81,48 @@
                                 return;
                             }
 
-                            c.SessionItems.Add(currentUser.ClientId, currentUser);
+                            if (string.IsNullOrWhiteSpace(currentUser.ClientIdPrefix))
+                            {
+                                if (c.ClientId != currentUser.ClientId)
+                                {
+                                    c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+                                    return;
+                                }
+                                else
+                                {
+                                    c.SessionItems.Add(currentUser.ClientId, currentUser);
+                                }
+                            }
+                            else
+                            {
+                                if (!clientIdPrefixesUsed.Contains(currentUser.ClientIdPrefix))
+                                {
+                                    clientIdPrefixesUsed.Add(currentUser.ClientIdPrefix);
+                                }
+                                
+                                c.SessionItems.Add(currentUser.ClientIdPrefix, currentUser);
+                            }
 
                             c.ReasonCode = MqttConnectReasonCode.Success;
                         }).WithSubscriptionInterceptor(
                     c =>
                         {
-                            var userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
-                            var currentUser = currentUserObject as User;
+                            var clientIdPrefix = GetClientIdPrefix(c.ClientId);
+                            User currentUser = null;
+                            bool userFound;
 
-                            if (!userFound || currentUserObject == null || currentUser == null)
+                            if (clientIdPrefix == null)
+                            {
+                                userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
+                                currentUser = currentUserObject as User;
+                            }
+                            else
+                            {
+                                userFound = c.SessionItems.TryGetValue(clientIdPrefix, out object currentUserObject);
+                                currentUser = currentUserObject as User;
+                            }
+                            
+                            if (!userFound || currentUser == null)
                             {
                                 c.AcceptSubscription = false;
                                 return;
@@ -128,10 +166,22 @@
                         }).WithApplicationMessageInterceptor(
                     c =>
                         {
-                            var userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
-                            var currentUser = currentUserObject as User;
+                            var clientIdPrefix = GetClientIdPrefix(c.ClientId);
+                            User currentUser = null;
+                            bool userFound;
 
-                            if (!userFound || currentUserObject == null || currentUser == null)
+                            if (clientIdPrefix == null)
+                            {
+                                userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
+                                currentUser = currentUserObject as User;
+                            }
+                            else
+                            {
+                                userFound = c.SessionItems.TryGetValue(clientIdPrefix, out object currentUserObject);
+                                currentUser = currentUserObject as User;
+                            }
+
+                            if (!userFound || currentUser == null)
                             {
                                 c.AcceptPublish = false;
                                 return;
@@ -177,6 +227,24 @@
             var mqttServer = new MqttFactory().CreateMqttServer();
             mqttServer.StartAsync(optionsBuilder.Build());
             Console.ReadLine();
+        }
+
+        /// <summary>
+        /// Gets the client id prefix for a client id if there is one or <see cref="null"/> else.
+        /// </summary>
+        /// <param name="clientId">The client id.</param>
+        /// <returns>The client id prefix for a client id if there is one or <see cref="null"/> else.</returns>
+        private static string GetClientIdPrefix(string clientId)
+        {
+            foreach (var clientIdPrefix in clientIdPrefixesUsed)
+            {
+                if (clientId.StartsWith(clientIdPrefix))
+                {
+                    return clientIdPrefix;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
