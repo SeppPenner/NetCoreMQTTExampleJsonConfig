@@ -57,33 +57,38 @@ Users can be defined in two different ways (The ways can be combined making sure
 
 ```json
 {
-  "UserName": "Hans2",
-  "Password": "Test",
-  "ClientIdPrefix": "Test_",
-  "SubscriptionTopicLists": {
-	"BlacklistTopics": [
-	  "g",
-	  "h/+",
-	  "i/#"
-	],
-	"WhitelistTopics": [
-	  "j",
-	  "k/+",
-	  "l/#"
-	]
-  },
-  "PublishTopicLists": {
-	"BlacklistTopics": [
-	  "g",
-	  "h/+",
-	  "i/#"
-	],
-	"WhitelistTopics": [
-	  "j",
-	  "k/+",
-	  "l/#"
-	]
-  }
+  "Port": 8883,
+  "Users": [
+    {
+      "UserName": "Hans2",
+      "Password": "Test",
+      "ClientIdPrefix": "Test_",
+      "SubscriptionTopicLists": {
+        "BlacklistTopics": [
+          "g",
+          "h/+",
+          "i/#"
+        ],
+        "WhitelistTopics": [
+          "j",
+          "k/+",
+          "l/#"
+        ]
+      },
+      "PublishTopicLists": {
+        "BlacklistTopics": [
+          "g",
+          "h/+",
+          "i/#"
+        ],
+        "WhitelistTopics": [
+          "j",
+          "k/+",
+          "l/#"
+        ]
+      }
+    }
+  ]
 }
 ```
 
