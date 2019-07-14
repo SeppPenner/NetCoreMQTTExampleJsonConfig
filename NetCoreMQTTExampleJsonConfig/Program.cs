@@ -49,7 +49,7 @@
             var config = ReadConfiguration(currentPath);
 
             var optionsBuilder = new MqttServerOptionsBuilder()
-			    //.WithDefaultEndpoint().WithDefaultEndpointPort(1883) // For testing purposes only
+			    .WithDefaultEndpoint().WithDefaultEndpointPort(1883) // For testing purposes only
                 .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
                 .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
                 .WithEncryptionSslProtocol(SslProtocols.Tls12).WithConnectionValidator(
@@ -75,13 +75,16 @@
                                 return;
                             }
 
+                            c.SessionItems.Add(currentUser.ClientId, currentUser);
+
                             c.ReasonCode = MqttConnectReasonCode.Success;
                         }).WithSubscriptionInterceptor(
                     c =>
                         {
-                            var currentUser = config.Users.FirstOrDefault(u => u.ClientId == c.ClientId);
+                            var userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
+                            var currentUser = currentUserObject as User;
 
-                            if (currentUser == null)
+                            if (!userFound || currentUserObject == null || currentUser == null)
                             {
                                 c.AcceptSubscription = false;
                                 return;
@@ -125,9 +128,10 @@
                         }).WithApplicationMessageInterceptor(
                     c =>
                         {
-                            var currentUser = config.Users.FirstOrDefault(u => u.ClientId == c.ClientId);
+                            var userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
+                            var currentUser = currentUserObject as User;
 
-                            if (currentUser == null)
+                            if (!userFound || currentUserObject == null || currentUser == null)
                             {
                                 c.AcceptPublish = false;
                                 return;
