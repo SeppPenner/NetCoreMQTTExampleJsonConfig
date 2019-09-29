@@ -1,22 +1,22 @@
-﻿namespace NetCoreMQTTExampleJsonConfig
-{
-    using System;
+﻿using System;
 
-    /// <inheritdoc cref="IDisposable"/>
+namespace NetCoreMQTTExampleJsonConfig
+{
+    /// <inheritdoc cref="IDisposable" />
     /// <summary>
-    /// A service to encrypt files and decrypt file data to a string.
+    ///     A service to encrypt files and decrypt file data to a string.
     /// </summary>
     public interface IAesCryptor : IDisposable
     {
         /// <summary>
-        /// Encrypts the file.
+        ///     Encrypts the file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>
         void EncryptFile(string fileName, string password);
 
         /// <summary>
-        /// Decrypts the file.
+        ///     Decrypts the file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>

@@ -1,40 +1,37 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using MQTTnet;
+using MQTTnet.Protocol;
+using MQTTnet.Server;
+using Newtonsoft.Json;
+
 namespace NetCoreMQTTExampleJsonConfig
 {
-    using System;
-    using System.Collections.Generic;
-
-    using MQTTnet;
-    using MQTTnet.Protocol;
-    using MQTTnet.Server;
-
-    using Newtonsoft.Json;
-
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Security.Authentication;
-    using System.Security.Cryptography.X509Certificates;
-
     /// <summary>
     ///     The main program.
     /// </summary>
     public class Program
     {
         /// <summary>
-        /// The <see cref="AesCryptor"></see>.
-        /// </summary>
-        private static readonly IAesCryptor aesCryptor = new AesCryptor();
-
-        /// <summary>
-        /// The password.
+        ///     The password.
         /// </summary>
         private const string Password = "somePassword";
 
         /// <summary>
-        /// The client identifier prefixes that are currently used.
+        ///     The <see cref="NetCoreMQTTExampleJsonConfig.AesCryptor"></see>.
         /// </summary>
-        private static List<string> clientIdPrefixesUsed = new List<string>();
+        private static readonly IAesCryptor AesCryptor = new AesCryptor();
+
+        /// <summary>
+        ///     The client identifier prefixes that are currently used.
+        /// </summary>
+        private static readonly List<string> ClientIdPrefixesUsed = new List<string>();
 
         /// <summary>
         ///     The main method that starts the service.
@@ -55,174 +52,170 @@ namespace NetCoreMQTTExampleJsonConfig
             var config = ReadConfiguration(currentPath);
 
             var optionsBuilder = new MqttServerOptionsBuilder()
-			    //.WithDefaultEndpoint().WithDefaultEndpointPort(1883) // For testing purposes only
+#if DEBUG
+                .WithDefaultEndpoint().WithDefaultEndpointPort(1883)
+#else
+                .WithoutDefaultEndpoint()
+#endif
                 .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
                 .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
                 .WithEncryptionSslProtocol(SslProtocols.Tls12).WithConnectionValidator(
                     c =>
+                    {
+                        var currentUser = config.Users.FirstOrDefault(u => u.UserName == c.Username);
+
+                        if (currentUser == null)
                         {
-                            var currentUser = config.Users.FirstOrDefault(u => u.UserName == c.Username);
+                            c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+                            return;
+                        }
 
-                            if (currentUser == null)
+                        if (c.Username != currentUser.UserName)
+                        {
+                            c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+                            return;
+                        }
+
+                        if (c.Password != currentUser.Password)
+                        {
+                            c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+                            return;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(currentUser.ClientIdPrefix))
+                        {
+                            if (c.ClientId != currentUser.ClientId)
                             {
                                 c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                                 return;
                             }
 
-                            if (c.Username != currentUser.UserName)
-                            {
-                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-                                return;
-                            }
+                            c.SessionItems.Add(currentUser.ClientId, currentUser);
+                        }
+                        else
+                        {
+                            if (!ClientIdPrefixesUsed.Contains(currentUser.ClientIdPrefix))
+                                ClientIdPrefixesUsed.Add(currentUser.ClientIdPrefix);
 
-                            if (c.Password != currentUser.Password)
-                            {
-                                c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-                                return;
-                            }
+                            c.SessionItems.Add(currentUser.ClientIdPrefix, currentUser);
+                        }
 
-                            if (string.IsNullOrWhiteSpace(currentUser.ClientIdPrefix))
-                            {
-                                if (c.ClientId != currentUser.ClientId)
-                                {
-                                    c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-                                    return;
-                                }
-                                else
-                                {
-                                    c.SessionItems.Add(currentUser.ClientId, currentUser);
-                                }
-                            }
-                            else
-                            {
-                                if (!clientIdPrefixesUsed.Contains(currentUser.ClientIdPrefix))
-                                {
-                                    clientIdPrefixesUsed.Add(currentUser.ClientIdPrefix);
-                                }
-                                
-                                c.SessionItems.Add(currentUser.ClientIdPrefix, currentUser);
-                            }
-
-                            c.ReasonCode = MqttConnectReasonCode.Success;
-                        }).WithSubscriptionInterceptor(
+                        c.ReasonCode = MqttConnectReasonCode.Success;
+                    }).WithSubscriptionInterceptor(
                     c =>
+                    {
+                        var clientIdPrefix = GetClientIdPrefix(c.ClientId);
+                        User currentUser;
+                        bool userFound;
+
+                        if (clientIdPrefix == null)
                         {
-                            var clientIdPrefix = GetClientIdPrefix(c.ClientId);
-                            User currentUser = null;
-                            bool userFound;
+                            userFound = c.SessionItems.TryGetValue(c.ClientId, out var currentUserObject);
+                            currentUser = currentUserObject as User;
+                        }
+                        else
+                        {
+                            userFound = c.SessionItems.TryGetValue(clientIdPrefix, out var currentUserObject);
+                            currentUser = currentUserObject as User;
+                        }
 
-                            if (clientIdPrefix == null)
-                            {
-                                userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
-                                currentUser = currentUserObject as User;
-                            }
-                            else
-                            {
-                                userFound = c.SessionItems.TryGetValue(clientIdPrefix, out object currentUserObject);
-                                currentUser = currentUserObject as User;
-                            }
-                            
-                            if (!userFound || currentUser == null)
-                            {
-                                c.AcceptSubscription = false;
-                                return;
-                            }
-
-                            var topic = c.TopicFilter.Topic;
-
-                            if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
-                            {
-                                c.AcceptSubscription = false;
-                                return;
-                            }
-
-                            if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
-                            {
-                                c.AcceptSubscription = true;
-                                return;
-                            }
-
-                            foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
-                            {
-                                var doesTopicMatch = TopicChecker.Regex(forbiddenTopic, topic);
-                                if (doesTopicMatch)
-                                {
-                                    c.AcceptSubscription = false;
-                                    return;
-                                }
-                            }
-
-                            foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
-                            {
-                                var doesTopicMatch = TopicChecker.Regex(allowedTopic, topic);
-                                if (doesTopicMatch)
-                                {
-                                    c.AcceptSubscription = true;
-                                    return;
-                                }
-                            }
-
+                        if (!userFound || currentUser == null)
+                        {
                             c.AcceptSubscription = false;
-                        }).WithApplicationMessageInterceptor(
-                    c =>
+                            return;
+                        }
+
+                        var topic = c.TopicFilter.Topic;
+
+                        if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
                         {
-                            var clientIdPrefix = GetClientIdPrefix(c.ClientId);
-                            User currentUser = null;
-                            bool userFound;
+                            c.AcceptSubscription = false;
+                            return;
+                        }
 
-                            if (clientIdPrefix == null)
-                            {
-                                userFound = c.SessionItems.TryGetValue(c.ClientId, out object currentUserObject);
-                                currentUser = currentUserObject as User;
-                            }
-                            else
-                            {
-                                userFound = c.SessionItems.TryGetValue(clientIdPrefix, out object currentUserObject);
-                                currentUser = currentUserObject as User;
-                            }
+                        if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
+                        {
+                            c.AcceptSubscription = true;
+                            return;
+                        }
 
-                            if (!userFound || currentUser == null)
-                            {
-                                c.AcceptPublish = false;
-                                return;
-                            }
+                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                        foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
+                        {
+                            var doesTopicMatch = TopicChecker.Regex(forbiddenTopic, topic);
+                            if (!doesTopicMatch) continue;
+                            c.AcceptSubscription = false;
+                            return;
+                        }
 
-                            var topic = c.ApplicationMessage.Topic;
+                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                        foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
+                        {
+                            var doesTopicMatch = TopicChecker.Regex(allowedTopic, topic);
+                            if (!doesTopicMatch) continue;
+                            c.AcceptSubscription = true;
+                            return;
+                        }
 
-                            if (currentUser.SubscriptionTopicLists.BlacklistTopics.Contains(topic))
-                            {
-                                c.AcceptPublish = false;
-                                return;
-                            }
+                        c.AcceptSubscription = false;
+                    }).WithApplicationMessageInterceptor(
+                    c =>
+                    {
+                        var clientIdPrefix = GetClientIdPrefix(c.ClientId);
+                        User currentUser;
+                        bool userFound;
 
-                            if (currentUser.SubscriptionTopicLists.WhitelistTopics.Contains(topic))
-                            {
-                                c.AcceptPublish = true;
-                                return;
-                            }
+                        if (clientIdPrefix == null)
+                        {
+                            userFound = c.SessionItems.TryGetValue(c.ClientId, out var currentUserObject);
+                            currentUser = currentUserObject as User;
+                        }
+                        else
+                        {
+                            userFound = c.SessionItems.TryGetValue(clientIdPrefix, out var currentUserObject);
+                            currentUser = currentUserObject as User;
+                        }
 
-                            foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
-                            {
-                                var doesTopicMatch = TopicChecker.Regex(forbiddenTopic, topic);
-                                if (doesTopicMatch)
-                                {
-                                    c.AcceptPublish = false;
-                                    return;
-                                }
-                            }
-
-                            foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
-                            {
-                                var doesTopicMatch = TopicChecker.Regex(allowedTopic, topic);
-                                if (doesTopicMatch)
-                                {
-                                    c.AcceptPublish = true;
-                                    return;
-                                }
-                            }
-
+                        if (!userFound || currentUser == null)
+                        {
                             c.AcceptPublish = false;
-                        });
+                            return;
+                        }
+
+                        var topic = c.ApplicationMessage.Topic;
+
+                        if (currentUser.PublishTopicLists.BlacklistTopics.Contains(topic))
+                        {
+                            c.AcceptPublish = false;
+                            return;
+                        }
+
+                        if (currentUser.PublishTopicLists.WhitelistTopics.Contains(topic))
+                        {
+                            c.AcceptPublish = true;
+                            return;
+                        }
+
+                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                        foreach (var forbiddenTopic in currentUser.PublishTopicLists.BlacklistTopics)
+                        {
+                            var doesTopicMatch = TopicChecker.Regex(forbiddenTopic, topic);
+                            if (!doesTopicMatch) continue;
+                            c.AcceptPublish = false;
+                            return;
+                        }
+
+                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                        foreach (var allowedTopic in currentUser.PublishTopicLists.WhitelistTopics)
+                        {
+                            var doesTopicMatch = TopicChecker.Regex(allowedTopic, topic);
+                            if (!doesTopicMatch) continue;
+                            c.AcceptPublish = true;
+                            return;
+                        }
+
+                        c.AcceptPublish = false;
+                    });
 
             var mqttServer = new MqttFactory().CreateMqttServer();
             mqttServer.StartAsync(optionsBuilder.Build());
@@ -230,54 +223,45 @@ namespace NetCoreMQTTExampleJsonConfig
         }
 
         /// <summary>
-        /// Gets the client id prefix for a client id if there is one or <see cref="null"/> else.
+        ///     Gets the client id prefix for a client id if there is one or <c>null</c> else.
         /// </summary>
         /// <param name="clientId">The client id.</param>
-        /// <returns>The client id prefix for a client id if there is one or <see cref="null"/> else.</returns>
+        /// <returns>The client id prefix for a client id if there is one or <c>null</c> else.</returns>
         private static string GetClientIdPrefix(string clientId)
         {
-            foreach (var clientIdPrefix in clientIdPrefixesUsed)
-            {
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var clientIdPrefix in ClientIdPrefixesUsed)
                 if (clientId.StartsWith(clientIdPrefix))
-                {
                     return clientIdPrefix;
-                }
-            }
 
             return null;
         }
 
         /// <summary>
-        /// Reads the configuration.
+        ///     Reads the configuration.
         /// </summary>
         /// <param name="currentPath">The current path.</param>
-        /// <returns>A <see cref="Config"/> object.</returns>
+        /// <returns>A <see cref="Config" /> object.</returns>
         private static Config ReadConfiguration(string currentPath)
         {
-            Config config;
-
             var filePath = $"{currentPath}\\config.json";
 
             if (File.Exists(filePath))
             {
+                Config config;
                 using (var r = new StreamReader(filePath))
                 {
                     var json = r.ReadToEnd();
                     config = JsonConvert.DeserializeObject<Config>(json);
                 }
 
-                if (!string.IsNullOrWhiteSpace(Password))
-                {
-                    aesCryptor.EncryptFile(filePath, Password);
-                }
+                if (!string.IsNullOrWhiteSpace(Password)) AesCryptor.EncryptFile(filePath, Password);
 
                 return config;
             }
-            else
-            {
-                var decrypted = aesCryptor.DecryptFile(filePath, Password);
-                return JsonConvert.DeserializeObject<Config>(decrypted);
-            }
+
+            var decrypted = AesCryptor.DecryptFile(filePath, Password);
+            return JsonConvert.DeserializeObject<Config>(decrypted);
         }
     }
 }

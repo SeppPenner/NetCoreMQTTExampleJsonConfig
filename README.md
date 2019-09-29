@@ -1,7 +1,7 @@
 NetCoreMQTTExampleJsonConfig
 ====================================
 
-NetCoreMQTTExampleJsonConfig is a project to check user credentials and topic restrictions from [MQTTnet](https://github.com/chkr1011/MQTTnet) from a json config file. The project was written and tested in .NetCore 2.2.
+NetCoreMQTTExampleJsonConfig is a project to check user credentials and topic restrictions from [MQTTnet](https://github.com/chkr1011/MQTTnet) from a json config file. The project was written and tested in .NetCore 3.0.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/fiew5qifetygw02w?svg=true)](https://ci.appveyor.com/project/SeppPenner/netcoremqttexamplejsonconfig)
 [![GitHub issues](https://img.shields.io/github/issues/SeppPenner/NetCoreMQTTExampleJsonConfig.svg)](https://github.com/SeppPenner/NetCoreMQTTExampleJsonConfig/issues)
@@ -297,5 +297,6 @@ An example certificate is in the folder. Password for all is `test`.
 Change history
 --------------
 
+* **Version 1.0.2.0 (2019-09-29)** : Updated to .NetCore 3.0, updated nuget packages, fixed code style.
 * **Version 1.0.1.0 (2019-08-22)** : Updated MQTTnet to 3.0.8.
 * **Version 1.0.0.0 (2019-07-14)** : 1.0 release.

@@ -1,27 +1,28 @@
-﻿namespace NetCoreMQTTExampleJsonConfig
-{
-    using System.IO;
-    using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 
+namespace NetCoreMQTTExampleJsonConfig
+{
     using Crypt = SharpAESCrypt.SharpAESCrypt;
 
-    /// <inheritdoc cref="IAesCryptor"/>
+    /// <inheritdoc cref="IAesCryptor" />
     /// <summary>
-    /// A service to encrypt files and decrypt file data to a string.
+    ///     A service to encrypt files and decrypt file data to a string.
     /// </summary>
     public class AesCryptor : IAesCryptor
     {
-        /// <inheritdoc cref="IDisposable"/>
+        /// <inheritdoc cref="IDisposable" />
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
         }
 
-        /// <inheritdoc cref="IAesCryptor"/>
+        /// <inheritdoc cref="IAesCryptor" />
         /// <summary>
-        /// Encrypts the file.
+        ///     Encrypts the file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>
@@ -33,9 +34,9 @@
             DeleteFileIfExists(fileName);
         }
 
-        /// <inheritdoc cref="IAesCryptor"/>
+        /// <inheritdoc cref="IAesCryptor" />
         /// <summary>
-        /// Decrypts the file.
+        ///     Decrypts the file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>
@@ -48,40 +49,36 @@
         }
 
         /// <summary>
-        /// Decrypts the data.
+        ///     Decrypts the data.
         /// </summary>
         /// <param name="encryptedData">The encrypted data.</param>
         /// <param name="password">The password.</param>
-        /// <returns>A <see cref="string/> containing the decrypted data.</returns>
+        /// <returns>A <see cref="string" /> containing the decrypted data.</returns>
         private static string DecryptData(byte[] encryptedData, string password)
         {
             string normalText;
             using (var encryptedStream = new MemoryStream(encryptedData))
             {
-                using (var normalStream = new MemoryStream())
-                {
-                    Crypt.Decrypt(password, encryptedStream, normalStream);
-                    var normalBytes = normalStream.ToArray();
-                    normalText = Encoding.UTF8.GetString(normalBytes);
-                }
+                using var normalStream = new MemoryStream();
+                Crypt.Decrypt(password, encryptedStream, normalStream);
+                var normalBytes = normalStream.ToArray();
+                normalText = Encoding.UTF8.GetString(normalBytes);
             }
+
             return normalText;
         }
 
         /// <summary>
-        /// Deletes the file if it exists.
+        ///     Deletes the file if it exists.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        private void DeleteFileIfExists(string fileName)
+        private static void DeleteFileIfExists(string fileName)
         {
-            if (File.Exists(fileName))
-            {
-                File.Delete(fileName);
-            } 
+            if (File.Exists(fileName)) File.Delete(fileName);
         }
 
         /// <summary>
-        /// Gets the name of the encrypted file.
+        ///     Gets the name of the encrypted file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <returns>Gets the encrypted file name.</returns>

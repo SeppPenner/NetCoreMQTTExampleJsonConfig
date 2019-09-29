@@ -1,7 +1,7 @@
-﻿namespace NetCoreMQTTExampleJsonConfig
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace NetCoreMQTTExampleJsonConfig
+{
     /// <summary>
     ///     The <see cref="Config" /> read from the config.json file.
     /// </summary>

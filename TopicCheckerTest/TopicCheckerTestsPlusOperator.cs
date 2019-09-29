@@ -4,13 +4,13 @@ using NetCoreMQTTExampleJsonConfig;
 namespace TopicCheckerTest
 {
     /// <summary>
-    /// A test class to test the <see cref="TopicCheckerTest"/> with the + operator.
+    ///     A test class to test the <see cref="TopicCheckerTest" /> with the + operator.
     /// </summary>
     [TestClass]
     public class TopicCheckerTestsPlusOperator
     {
         /// <summary>
-        /// Checks the tester with a valid topic for the + operator.
+        ///     Checks the tester with a valid topic for the + operator.
         /// </summary>
         [TestMethod]
         public void CheckSingleValuePlusMatch()
@@ -20,7 +20,7 @@ namespace TopicCheckerTest
         }
 
         /// <summary>
-        /// Checks the tester with an invalid topic for the + operator.
+        ///     Checks the tester with an invalid topic for the + operator.
         /// </summary>
         [TestMethod]
         public void CheckSingleValuePlusDontMatch()
@@ -30,7 +30,7 @@ namespace TopicCheckerTest
         }
 
         /// <summary>
-        /// Checks the tester with a valid topic with a + for the + operator.
+        ///     Checks the tester with a valid topic with a + for the + operator.
         /// </summary>
         [TestMethod]
         public void CheckSingleValuePlusMatchWithPlus()
@@ -40,7 +40,7 @@ namespace TopicCheckerTest
         }
 
         /// <summary>
-        /// Checks the tester with an invalid topic with a # for the + operator.
+        ///     Checks the tester with an invalid topic with a # for the + operator.
         /// </summary>
         [TestMethod]
         public void CheckSingleValuePlusDontMatchWithCross()
