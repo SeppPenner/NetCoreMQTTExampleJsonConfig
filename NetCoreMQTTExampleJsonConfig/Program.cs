@@ -53,8 +53,8 @@ namespace NetCoreMQTTExampleJsonConfig
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.RollingFile(Path.Combine(currentPath,
-                    @"..\log\NetCoreMQTTExampleJsonConfig_{Date}.txt"))
+                .WriteTo.File(Path.Combine(currentPath,
+                    @"log\NetCoreMQTTExampleJsonConfig_.txt"), rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             var config = ReadConfiguration(currentPath);
