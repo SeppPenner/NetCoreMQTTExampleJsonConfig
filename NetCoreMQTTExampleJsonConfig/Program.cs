@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -34,6 +35,11 @@ namespace NetCoreMQTTExampleJsonConfig
         ///     The client identifier prefixes that are currently used.
         /// </summary>
         private static readonly List<string> ClientIdPrefixesUsed = new List<string>();
+
+        /// <summary>
+        /// Gets or sets the data limit cache for throttling for monthly data.
+        /// </summary>
+        private static readonly MemoryCache DataLimitCacheMonth = MemoryCache.Default;
 
         /// <summary>
         ///     The main method that starts the service.
@@ -211,6 +217,20 @@ namespace NetCoreMQTTExampleJsonConfig
 
                         var topic = c.ApplicationMessage.Topic;
 
+                        if (currentUser.ThrottleUser)
+                        {
+                            var payload = c.ApplicationMessage?.Payload;
+
+                            if (payload != null)
+                            {
+                                if (IsUserThrottled(c.ClientId, payload.Length, currentUser.MonthlyByteLimit))
+                                {
+                                    c.AcceptPublish = false;
+                                    return;
+                                }
+                            }
+                        }
+
                         if (currentUser.PublishTopicLists.BlacklistTopics.Contains(topic))
                         {
                             c.AcceptPublish = false;
@@ -264,6 +284,52 @@ namespace NetCoreMQTTExampleJsonConfig
                     return clientIdPrefix;
 
             return null;
+        }
+
+        /// <summary>
+        /// Checks whether a user has used the maximum of its publishing limit for the month or not.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="sizeInBytes">The message size in bytes.</param>
+        /// <param name="monthlyByteLimit">The monthly byte limit.</param>
+        /// <returns>A value indicating whether the user will be throttled or not.</returns>
+        private static bool IsUserThrottled(string clientId, long sizeInBytes, long monthlyByteLimit)
+        {
+            var foundUserInCache = DataLimitCacheMonth.GetCacheItem(clientId);
+
+            if (foundUserInCache == null)
+            {
+                DataLimitCacheMonth.Add(clientId, sizeInBytes, DateTimeOffset.Now.EndOfCurrentMonth());
+
+                if (sizeInBytes < monthlyByteLimit)
+                {
+                    return false;
+                }
+
+                Log.Information($"The client with client id {clientId} is now locked until the end of this month because it already used its data limit.");
+                return true;
+            }
+
+            try
+            {
+                var currentValue = Convert.ToInt64(foundUserInCache.Value);
+                currentValue = checked(currentValue + sizeInBytes);
+                DataLimitCacheMonth[clientId] = currentValue;
+
+                if (currentValue >= monthlyByteLimit)
+                {
+                    Log.Information($"The client with client id {clientId} is now locked until the end of this month because it already used its data limit.");
+                    return true;
+                }
+            }
+            catch (OverflowException)
+            {
+                Log.Information("OverflowException thrown.");
+                Log.Information($"The client with client id {clientId} is now locked until the end of this month because it already used its data limit.");
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
