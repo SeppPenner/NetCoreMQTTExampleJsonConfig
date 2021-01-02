@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IAesCryptor.cs" company="Haemmer Electronics">
+// <copyright file="IAesCryptor.cs" company="Hämmer Electronics">
 //   Copyright (c) 2020 All rights reserved.
 // </copyright>
 // <summary>
@@ -22,6 +22,7 @@ namespace NetCoreMQTTExampleJsonConfig
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>
+        // ReSharper disable once InconsistentNaming
         void EncryptFile(string fileName, string password);
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace NetCoreMQTTExampleJsonConfig
         /// <param name="fileName">Name of the file.</param>
         /// <param name="password">The password.</param>
         /// <returns>The decrypted file contents as <see cref="string"/>.</returns>
+        // ReSharper disable once InconsistentNaming
         string DecryptFile(string fileName, string password);
     }
 }

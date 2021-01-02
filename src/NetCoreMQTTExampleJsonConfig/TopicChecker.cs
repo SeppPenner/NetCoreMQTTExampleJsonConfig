@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TopicChecker.cs" company="Haemmer Electronics">
+// <copyright file="TopicChecker.cs" company="Hämmer Electronics">
 //   Copyright (c) 2020 All rights reserved.
 // </copyright>
 // <summary>
@@ -24,6 +24,7 @@ namespace NetCoreMQTTExampleJsonConfig
         /// <param name="allowedTopic">The allowed topic.</param>
         /// <param name="topic">The topic.</param>
         /// <returns><c>true</c> if the topic is valid, <c>false</c> if not.</returns>
+        // ReSharper disable once InconsistentNaming
         public static bool Regex(string allowedTopic, string topic)
         {
             // Check if the topics match directly

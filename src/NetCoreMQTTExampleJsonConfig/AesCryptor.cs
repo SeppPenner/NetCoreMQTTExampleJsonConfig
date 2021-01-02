@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AesCryptor.cs" company="Haemmer Electronics">
+// <copyright file="AesCryptor.cs" company="Hämmer Electronics">
 //   Copyright (c) 2020 All rights reserved.
 // </copyright>
 // <summary>
@@ -67,6 +67,7 @@ namespace NetCoreMQTTExampleJsonConfig
         /// <param name="encryptedData">The encrypted data.</param>
         /// <param name="password">The password.</param>
         /// <returns>A <see cref="string" /> containing the decrypted data.</returns>
+        // ReSharper disable once InconsistentNaming
         private static string DecryptData(byte[] encryptedData, string password)
         {
             using var encryptedStream = new MemoryStream(encryptedData);
@@ -82,6 +83,7 @@ namespace NetCoreMQTTExampleJsonConfig
         ///     Deletes the file if it exists.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
+        // ReSharper disable once InconsistentNaming
         private static void DeleteFileIfExists(string fileName)
         {
             if (File.Exists(fileName)) File.Delete(fileName);
@@ -92,6 +94,7 @@ namespace NetCoreMQTTExampleJsonConfig
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <returns>Gets the encrypted file name.</returns>
+        // ReSharper disable once InconsistentNaming
         private static string GetEncryptedFileName(string fileName)
         {
             return fileName + ".aes";

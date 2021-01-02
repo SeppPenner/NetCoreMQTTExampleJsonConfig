@@ -1,9 +1,9 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Config.cs" company="Haemmer Electronics">
+// <copyright file="TopicTuple.cs" company="Hämmer Electronics">
 //   Copyright (c) 2020 All rights reserved.
 // </copyright>
 // <summary>
-//   The <see cref="Config" /> read from the config.json file.
+//   The <see cref="TopicTuple" /> read from the config.json file.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -13,19 +13,19 @@ namespace NetCoreMQTTExampleJsonConfig
     using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
-    ///     The <see cref="Config" /> read from the config.json file.
+    ///     The <see cref="TopicTuple" /> read from the config.json file.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-    public class Config
+    public class TopicTuple
     {
         /// <summary>
-        ///     Gets or sets the port.
+        ///     Gets or sets the whitelist topics.
         /// </summary>
-        public int Port { get; set; }
+        public List<string> WhitelistTopics { get; set; } = new List<string>();
 
         /// <summary>
-        ///     Gets or sets the list of valid users.
+        ///     Gets or sets the blacklist topics.
         /// </summary>
-        public List<User> Users { get; set; } = new List<User>();
+        public List<string> BlacklistTopics { get; set; } = new List<string>();
     }
 }
