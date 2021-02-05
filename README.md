@@ -10,11 +10,11 @@ NetCoreMQTTExampleJsonConfig is a project to check user credentials and topic re
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/SeppPenner/NetCoreMQTTExampleJsonConfig/master/License.txt)
 [![Known Vulnerabilities](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig/badge.svg)](https://snyk.io/test/github/SeppPenner/NetCoreMQTTExampleJsonConfig)
 
-## JSON configuration (Adjust this to your needs):
+## JSON configuration (Adjust this to your needs)
 
 Users can be defined in two different ways (The ways can be combined making sure that the client ids and client id prefixes need to be distinct for all of them, of course):
 
-### Exact definition (Matching exactly one client id):
+### Exact definition (Matching exactly one client id)
 
 ```json
 {
@@ -53,7 +53,7 @@ Users can be defined in two different ways (The ways can be combined making sure
 }
 ```
 
-### Various definition (Matching multiple client ids for one username and password combination):
+### Various definition (Matching multiple client ids for one username and password combination)
 
 ```json
 {
@@ -92,7 +92,7 @@ Users can be defined in two different ways (The ways can be combined making sure
 }
 ```
 
-### Various definition (Matching all client ids for one username and password combination):
+### Various definition (Matching all client ids for one username and password combination)
 
 ```json
 {
@@ -167,7 +167,7 @@ Example:
 }
 ```
 
-## Attention:
+## Attention
 * Only the following [UTF-8](https://www.utf8-chartable.de/unicode-utf8-table.pl) chars are supported for topics:
 
 |Unicode code point|character|UTF-8(hex.)|Name|
@@ -361,7 +361,7 @@ Example:
 |U+00FE|`þ`|c3 be|LATIN SMALL LETTER THORN|
 |U+00FF|`ÿ`|c3 bf|LATIN SMALL LETTER Y WITH DIAERESIS|
 
-## Create an openssl certificate:
+## Create an openssl certificate
 ```bash
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 openssl pkcs12 -export -out certificate.pfx -inkey key.pem -in cert.pem
