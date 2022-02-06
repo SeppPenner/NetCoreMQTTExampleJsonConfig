@@ -11,7 +11,6 @@ namespace NetCoreMQTTExampleJsonConfig
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -62,14 +61,9 @@ namespace NetCoreMQTTExampleJsonConfig
         ///     The main method that starts the service.
         /// </summary>
         /// <param name="args">Some arguments. Currently unused.</param>
-        [SuppressMessage(
-            "StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Reviewed. Suppression is OK here.")]
-        // ReSharper disable once InconsistentNaming
         public static void Main(string[] args)
         {
-            var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
             var certificate = new X509Certificate2(
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Path.Combine(currentPath, "certificate.pfx"),
@@ -151,7 +145,7 @@ namespace NetCoreMQTTExampleJsonConfig
                     c =>
                     {
                         var clientIdPrefix = GetClientIdPrefix(c.ClientId);
-                        User currentUser;
+                        User? currentUser = null;
                         bool userFound;
 
                         if (clientIdPrefix == null)
@@ -165,7 +159,7 @@ namespace NetCoreMQTTExampleJsonConfig
                             currentUser = currentUserObject as User;
                         }
 
-                        if (!userFound || currentUser == null)
+                        if (!userFound || currentUser is null)
                         {
                             c.AcceptSubscription = false;
                             LogMessage(c, false);
@@ -188,7 +182,6 @@ namespace NetCoreMQTTExampleJsonConfig
                             return;
                         }
 
-                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
                         foreach (var forbiddenTopic in currentUser.SubscriptionTopicLists.BlacklistTopics)
                         {
                             var doesTopicMatch = TopicChecker.Regex(forbiddenTopic, topic);
@@ -203,7 +196,6 @@ namespace NetCoreMQTTExampleJsonConfig
                             return;
                         }
 
-                        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
                         foreach (var allowedTopic in currentUser.SubscriptionTopicLists.WhitelistTopics)
                         {
                             var doesTopicMatch = TopicChecker.Regex(allowedTopic, topic);
@@ -224,7 +216,7 @@ namespace NetCoreMQTTExampleJsonConfig
                     c =>
                     {
                         var clientIdPrefix = GetClientIdPrefix(c.ClientId);
-                        User currentUser;
+                        User? currentUser = null;
                         bool userFound;
 
                         if (clientIdPrefix == null)
@@ -318,10 +310,8 @@ namespace NetCoreMQTTExampleJsonConfig
         /// </summary>
         /// <param name="clientId">The client id.</param>
         /// <returns>The client id prefix for a client id if there is one or <c>null</c> else.</returns>
-        // ReSharper disable once InconsistentNaming
         private static string GetClientIdPrefix(string clientId)
         {
-            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (var clientIdPrefix in ClientIdPrefixesUsed)
             {
                 if (clientId.StartsWith(clientIdPrefix))
@@ -330,7 +320,7 @@ namespace NetCoreMQTTExampleJsonConfig
                 }
             }
 
-            return null;
+            return string.Empty;
         }
 
         /// <summary>
@@ -396,7 +386,7 @@ namespace NetCoreMQTTExampleJsonConfig
                 using (var r = new StreamReader(filePath))
                 {
                     var json = r.ReadToEnd();
-                    config = JsonConvert.DeserializeObject<Config>(json);
+                    config = JsonConvert.DeserializeObject<Config>(json) ?? new();
                 }
 
                 if (!string.IsNullOrWhiteSpace(Password))
@@ -408,7 +398,7 @@ namespace NetCoreMQTTExampleJsonConfig
             }
 
             var decrypted = AesCryptor.DecryptFile(filePath, Password);
-            return JsonConvert.DeserializeObject<Config>(decrypted);
+            return JsonConvert.DeserializeObject<Config>(decrypted) ?? new();
         }
 
         /// <summary> 
@@ -444,7 +434,7 @@ namespace NetCoreMQTTExampleJsonConfig
                 return;
             }
 
-            var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
+            var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage.Payload);
 
             Logger.Information(
                 "Message: ClientId = {@ClientId}, Topic = {@Topic}, Payload = {@Payload}, QoS = {@Qos}, Retain-Flag = {@RetainFlag}",
