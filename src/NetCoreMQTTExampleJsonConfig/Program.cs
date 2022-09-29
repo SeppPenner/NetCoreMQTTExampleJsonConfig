@@ -56,9 +56,14 @@ public class Program
             "test",
             X509KeyStorageFlags.Exportable);
 
-        Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File(
-            Path.Combine(currentPath, @"log\NetCoreMQTTExampleJsonConfig_.txt"),
-            rollingInterval: RollingInterval.Day).CreateLogger();
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .Enrich.FromLogContext()
+            .Enrich.WithExceptionDetails()
+            .Enrich.WithMachineName()
+            .WriteTo.File(
+                Path.Combine(currentPath, @"log\NetCoreMQTTExampleJsonConfig_.txt"),
+                rollingInterval: RollingInterval.Day).CreateLogger();
 
         config = ReadConfiguration(currentPath);
 

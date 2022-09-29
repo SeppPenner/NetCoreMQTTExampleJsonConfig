@@ -17,6 +17,7 @@ global using MQTTnet.Server;
 global using Newtonsoft.Json;
 
 global using Serilog;
+global using Serilog.Exceptions;
 
 global using Crypt = SharpAESCrypt.SharpAESCrypt;
 #pragma warning restore IDE0065 // Die using-Anweisung wurde falsch platziert.
