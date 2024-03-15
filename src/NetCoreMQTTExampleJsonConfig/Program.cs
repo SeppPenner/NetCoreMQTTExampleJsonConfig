@@ -27,10 +27,10 @@ public sealed class Program
     /// <summary>
     /// The client identifier prefixes that are currently used.
     /// </summary>
-    private static readonly List<string> ClientIdPrefixesUsed = new();
+    private static readonly List<string> ClientIdPrefixesUsed = [];
 
     /// <summary>
-    /// Gets or sets the data limit cache for throttling for monthly data.
+    /// The data limit cache for throttling for monthly data.
     /// </summary>
     private static readonly MemoryCache DataLimitCacheMonth = MemoryCache.Default;
 
@@ -42,7 +42,7 @@ public sealed class Program
     /// <summary>
     /// The client identifiers.
     /// </summary>
-    private static readonly HashSet<string> clientIds = new();
+    private static readonly HashSet<string> clientIds = [];
 
     /// <summary>
     /// The configuration.
@@ -74,11 +74,11 @@ public sealed class Program
 
         var optionsBuilder = new MqttServerOptionsBuilder()
 #if DEBUG
-                .WithDefaultEndpoint().WithDefaultEndpointPort(1883)
+            .WithDefaultEndpoint().WithDefaultEndpointPort(1883)
 #else
-                .WithoutDefaultEndpoint()
+            .WithoutDefaultEndpoint()
 #endif
-                .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
+            .WithEncryptedEndpoint().WithEncryptedEndpointPort(config.Port)
             .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
             .WithEncryptionSslProtocol(SslProtocols.Tls12);
 
@@ -108,7 +108,7 @@ public sealed class Program
             if (clientIds.TryGetValue(args.ClientId, out var _))
             {
                 args.ReasonCode = MqttConnectReasonCode.ClientIdentifierNotValid;
-                Log.Logger.Warning("A client with client id {ClientId} is already connected", args.ClientId);
+                Logger.Warning("A client with client id {ClientId} is already connected", args.ClientId);
                 return Task.CompletedTask;
             }
 
