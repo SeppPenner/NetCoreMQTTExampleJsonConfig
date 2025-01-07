@@ -1,8 +1,4 @@
 #pragma warning disable IDE0065 // Die using-Anweisung wurde falsch platziert.
-global using System;
-global using System.Collections.Generic;
-global using System.IO;
-global using System.Linq;
 global using System.Reflection;
 global using System.Runtime.Caching;
 global using System.Security.Authentication;
@@ -10,7 +6,6 @@ global using System.Security.Cryptography.X509Certificates;
 global using System.Text;
 global using System.Text.RegularExpressions;
 
-global using MQTTnet;
 global using MQTTnet.Protocol;
 global using MQTTnet.Server;
 
